@@ -64,7 +64,18 @@ field allowed : Map ByStr20 (Map ByStr20 Uint128) = Emp ByStr20 (Map ByStr20 Uin
 (* The map of DealID to the params of the deal *)
 field pendingZilDeals :
     Map ByStr32 (Pair ByStr20 (Pair Uint128 Pair (Uint128 Pair(BNum (Pair ByStr20 Bool))))) =
-        Emp ByStr32 (Pair ByStr20 (Pair Uint128 Pair (Uint128 Pair(BNum (Pair ByStr20 Bool)))))
+      let m = Emp ByStr32 (Pair Hash (Pair Uint128 Pair (Uint128 Pair(BNum (Pair ByStr20 Bool))))) in
+      let t = False in
+      let bn = block 20 in 
+      let tkn = Uint128 10 in 
+      let str = "wuewo8493iueworu" in 
+      let nn = builtin sha256 str in 
+      let p1 = Pair {(ByStr20) (Bool)} owner t in
+      let p2 = Pair {BNum (Pair ByStr20 Bool)} bn p1 in
+      let p3 = Pair {Uint128 (Pair (BNum (ByStr20 Bool)))} tkn p2 in 
+      let p4 = Pair {ByStr20 (Pair (Uint128 (Pair (BNum (ByStr20 Bool)))))} nn p3 in 
+       (*let p5 = Pair (ByStr20 (Pair (ByStr20 (Pair (Uint128 (Pair (BNum (ByStr20 Bool)))))))) TokenOwner p4 in  *)
+        builtin put m owner p4
 
 field selfAddress : Option ByStr20 = None {ByStr20}
 
@@ -73,6 +84,7 @@ field selfAddress : Option ByStr20 = None {ByStr20}
 (* BEGIN: ATOMIC TRANSITIONS *)
 
 (* 1. ListDeal by deal Seller: Update DealMap & emit Event with deal details including nonce *)
+transition ListDeal 
 (* 2. BidForDeal by a Buyer: Send by DealID, send the required ZIL, check block number, if valid set the buyer, emit event *)
 (* 3. ApproveTokenBuyer by Seller: Check against the DealID, pass info into Approve transition, set state to approved *)
 (* 4. TransferTokenToBuyer by the Buyer: DealID, if approved, then buyer can claim token, TransferFrom transition *)
@@ -81,6 +93,8 @@ field selfAddress : Option ByStr20 = None {ByStr20}
 (* 7. ClaimExpiredZil by the Buyer: DealID => If not approved, get back ZIL *)
 
 (* END: ATOMIC TRANSITIONS *)
+
+
 
 transition BalanceOf (tokenOwner : ByStr20)
   bl <- balances;
@@ -240,3 +254,4 @@ transition Allowance (tokenOwner : ByStr20, spender : ByStr20)
     send msgs
   end
 end
+
